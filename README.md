@@ -173,12 +173,15 @@ flowchart TD
 | ESP32-S3 | Main microcontroller | 1 | Handles decode + I2S + display + SD, all in parallel |
 | TFT + Encoder + Button module | 2.4" ST7789 SPI display (320×240), integrated EC11 rotary encoder, independent push button | 1 | Same PCB also comes in a 1.8" ST7735S (128×160) variant, not used here |
 | microSD card module | SPI, stores MP3 files + embedded album art | 1 | |
+| microSD card | Any size, FAT32 formatted | 1 | The actual storage medium — the module above is just the reader |
 | PCM5102A | I2S DAC, line-level analog output | 1 | ~106dB dynamic range; chosen over MAX98357A for fidelity |
 | PAM8403 | Class-D amplifier | 1 | Drives the speaker from the DAC's line-level output |
 | Speaker | 4Ω/8Ω, small enclosure | 1 | |
-| 3.5mm (P2) jack, switched | Headphone output | 1 | Switch contact reserved for auto-mute (see [Roadmap](#roadmap)) |
+| 3.5mm (P2) jack, switched | Headphone output | 1 | Switch contact reserved for auto-mute (see Roadmap) |
 | LiPo battery | 3.7V | 1 | Capacity per enclosure size |
-| Charge/protection module w/ fuel gauge | e.g. MAX17048-based | 1 | Reports battery % to the UI |
+| Charge/protection module w/ fuel gauge | e.g. MAX17048-based | 1 | Charges + protects the battery and reports %; does **not** regulate output voltage |
+| Boost converter, LiPo → 5V | e.g. MT3608-based | 1 | Steps the raw 3.0–4.2V LiPo output up to 5V for the devkit's VIN — assumes a generic ESP32-S3 devkit; adjust or drop if using a board that accepts 3.3V/LiPo directly |
+| Physical power switch | SPST, inline with battery | 1 | True hardware off — deep sleep alone still draws a small residual current |
 
 ---
 
