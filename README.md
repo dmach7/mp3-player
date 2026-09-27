@@ -62,11 +62,11 @@ microSD → decode (MP3/ID3/album art) → I2S → PCM5102A DAC
 ```mermaid
 flowchart TD
     Boot([Power On]) --> Init[Init SPI: TFT + microSD\nInit I2S: PCM5102A\nInit Digital: Encoder + Button\nInit I2C: MAX17048]
-    Init --> Playlists[Playlists Screen\nfirst screen after boot]
+    Init --> Playlists[/"Playlists Screen\nfirst screen after boot"/]
 
     Playlists -->|Rotate encoder| Playlists
-    Playlists -->|Independent button\nor timeout| MainMenu[Main Menu\nWiFi · Bluetooth · File Manager\nBattery Info · Display Brightness\nEqualizer · Theme · Repeat Mode\nSleep Timer · About / OTA Update]
-    MainMenu -->|Independent button\nor timeout| Playlists
+    Playlists -->|Independent button\nor timeout| SettingsMenu[/"Settings Menu\nWiFi · Bluetooth · File Manager\nBattery Info · Display Brightness\nEqualizer · Theme · Repeat Mode\nSleep Timer · About / OTA Update"/]
+    SettingsMenu -->|Independent button\nor timeout| Playlists
 
     Playlists -->|Press encoder\non selected playlist| Prompt[/"Continue where you left off?\n/ Shuffle / Start over"/]
 
@@ -74,11 +74,13 @@ flowchart TD
     Prompt -->|Start over| LoadFirst[Load track 1\nsequential mode]
     Prompt -->|Shuffle| PickRandom[Auto-pick random track\nshuffle mode]
 
-    LoadSaved --> Playing
+    LoadSaved --> Playing[Playing]
     LoadFirst --> Playing
     PickRandom --> Playing
 
-    Playing[Playing\nshow album art + ID3 tags] -->|Rotate encoder| AdjustVol[Adjust volume]
+    Playing -.->|displays| NowPlayingScreen[/"Now Playing screen:\nalbum art + ID3 tags + progress"/]
+
+    Playing -->|Rotate encoder| AdjustVol[Adjust volume]
     AdjustVol --> Playing
 
     Playing -->|Press encoder| Paused[Paused]
@@ -125,11 +127,25 @@ flowchart TD
 
     Playlists -.->|background poll| Batt
     Playing -.->|background poll| Batt
-    MainMenu -.->|background poll| Batt
+    SettingsMenu -.->|background poll| Batt
 
     Shutdown --> SaveState[Save current track + position\nif sequential mode]
     SaveState --> Off([Power Off])
+
+    linkStyle 9,10,11,14,16,19,25,30 stroke:#2ecc71,stroke-width:2px
+    linkStyle 13,15,17,21 stroke:#e67e22,stroke-width:2px
+    linkStyle 12 stroke:#3498db,stroke-width:2px,stroke-dasharray:4 4
+    linkStyle 35,36 stroke:#9b59b6,stroke-width:2px,stroke-dasharray:4 4
+    linkStyle 43,44,45 stroke:#7f8c8d,stroke-width:1px,stroke-dasharray:2 2
 ```
+As the flow became super messy and hard to understand in the ```Playing``` block, i made different strings colors just for this block.
+
+- 🟢 Green — flow returning to Playing (resuming playback)
+- 🟠 Orange — flow leaving Playing (into another action or screen)
+- 🔵 Blue (dashed) — what gets shown on screen
+- 🟣 Purple (dashed) — audio signal path
+- ⚪ Gray (dashed) — background battery poll
+
 | Shape | Mermaid syntax | Meaning |
 | :--- | :--- | :--- |
 | Stadium (rounded) | `([Text])` | Start / End of the whole system (power on/off) |
